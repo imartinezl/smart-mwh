@@ -25,10 +25,14 @@ import Select from 'grommet/components/Select';
 import Headline from 'grommet/components/Headline';
 import Distribution from 'grommet/components/Distribution';
 
-
+import Layer from 'grommet/components/Layer';
+import Quote from 'grommet/components/Quote';
+import Markdown from 'grommet/components/Markdown';
 
 import fire from '../fire';
 import firebase from 'firebase';
+
+var $ = require('jQuery');
 
 export default class AddTask extends Component {
   constructor(props) {
@@ -48,7 +52,8 @@ export default class AddTask extends Component {
       onshore: 50,
       oems:'',
       toast: false,
-      media:0
+      savings:0,
+      formSent: false,
     };
     this.baseState = this.state;
     this.handleChange = this.handleChange.bind(this);
@@ -58,6 +63,7 @@ export default class AddTask extends Component {
     this.closeToast = this.closeToast.bind(this);
     this._onChangeRange = this._onChangeRange.bind(this);
     this.sendEmail = this.sendEmail.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
 
   }
   // componentWillMount(){
@@ -112,7 +118,7 @@ export default class AddTask extends Component {
   handleSubmit(event) {
     event.preventDefault();
 
-    this.setState({media: (parseInt(this.state.wts,10) * parseInt(this.state.cost,10))})
+    this.setState({savings: (parseInt(this.state.wts,10) * parseInt(this.state.cost,10))})
     console.log(this.state);
     if (!this.state.formValid) {
       event.preventDefault();
@@ -122,15 +128,15 @@ export default class AddTask extends Component {
       return;
     }
     fire.database().ref('data').push( this.state );
+    this.setState({toast: true});
     console.log('Saved into Firebase');
-    this.resetSubmit();
+    // this.resetSubmit();
   }
 
   resetSubmit(event){
     // event.preventDefault();
     if(this.state.formValid){
       this.setState(this.baseState);
-      this.setState({toast: true});
     }
   }
   _onChangeRange(event) {
@@ -145,26 +151,36 @@ export default class AddTask extends Component {
     this.setState({toast: false});
   }
 
-  sendEmail(){
-    const sgMail = require('@sendgrid/mail');
+  onSubmit(e){
+    e.preventDefault();
+    var submittedName = this.state.name;
+    var submittedEmail = this.state.email;
+    this.setState({
+      name: this.state.name,
+      email: this.state.email
+      }, function () {
+        this.sendEmail(this.state);
+    });
+  }
 
-    const SENDGRID_API_KEY='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'
-    // using SendGrid's v3 Node.js Library
-    // https://github.com/sendgrid/sendgrid-nodejs
-    sgMail.setApiKey(SENDGRID_API_KEY);
-    const msg = {
-      to: 'inigomlap@gmail.com',
-      from: 'imartinez@nemsolutions.com',
-      subject: 'Sending with SendGrid is Fun',
-      text: 'and easy to do anywhere, even with Node.js',
-      html: '<strong>and easy to do anywhere, even with Node.js</strong>',
-    };
-    sgMail.send(msg);
-    console.log(sgMail);
+  sendEmail(info) {
+      console.log("sending email");
+        $.ajax({
+        url: '/',
+        type: 'POST',
+        data: info,
+        success: function(data) {
+          console.dir('success ' + data.message);
+        },
+        error: function(xhr, status, err) {
+          console.dir("error: " + err.message);
+        }
+      });
   }
 
   render() {
-    const w='336';
+    let w='336';
+
     return (
         <Form id="form" ref={(el) => this.myFormRef = el}
           onSubmit={this.handleSubmit} plain={true} >
@@ -228,18 +244,64 @@ export default class AddTask extends Component {
                 primary={true}
                 secondary={true}
                 onClick={this.handleSubmit} style={{width:'330', margin:'10px 0px 0px 0px'}}/>
+
                 <Button label='Send Email!'
                   type='submit'
                   primary={true}
                   secondary={true}
-                  onClick={this.sendEmail} style={{width:'330', margin:'10px 0px 0px 0px'}}/>
-              <Animate visible={this.state.toast}
-                enter={{"animation": "fade", "duration": 1000, "delay": 0}}
-                keep={false}>
-                  <Toast status='ok' size='large' onClose={this.closeToast}>
-                    {<h4 style={{'margin':'10px 0px 0px 0px'}} size='small'> Thank you for your information. Our crazy mathematicians will now send you an email with your savings </h4>}
-                  </Toast>
-               </Animate>
+                  onClick={this.onSubmit} style={{width:'330', margin:'10px 0px 0px 0px'}}/>
+
+              {
+                // <Animate visible={this.state.toast}
+              //   enter={{"animation": "fade", "duration": 1000, "delay": 0}}
+              //   keep={false}>
+                  // <Toast status='ok' size='large' onClose={this.closeToast}>
+                  //   {<h4 style={{'margin':'10px 0px 0px 0px'}} size='small'> Thank you for your information. Our crazy mathematicians will now send you an email with your savings </h4>}
+                  // </Toast>
+              //  </Animate>
+              }
+               <Layer hidden={!this.state.toast} closer={true}  flush={true} onClose={this.resetSubmit}>
+
+                 <Quote style={{width:'700px'}} size="large" borderColorIndex='brand'>
+                  <Heading strong={true} margin='large'>  Hi {this.state.name} </Heading>
+                   <Markdown  components={{
+                    "h1": {"props": {"strong": true}},
+                    "h2": {"props": {"strong": true}},
+                    "p": {"props": {"align": "center"}},
+                    "img": {"props": {"size": "small"}}
+                  }} content='
+                  ##### Thank you for your interest in NEM Solutions.
+
+                  ###### We have been analyzing your data and based on our **historical data, our neural networks, our fuzzy logic, our knowledge and common sense**, we are confident that could you be saving up a total:
+                  '/>
+                  <Headline size='small' margin='large' align='center' strong={true}>  {this.state.savings} €</Headline>
+
+                  <Markdown  components={{
+                   "h1": {"props": {"strong": true}},
+                   "h2": {"props": {"strong": true}},
+                   "p": {"props": {"align": "center"}},
+                   "img": {"props": {"size": "small"}}
+                 }} content='
+
+                  ###### This is a good estimate, but we know that better data leads to better results.
+                  ###### If you are interested on knowing more about NEM Solutions and how we turn data into relevant insights allowing to save money, please contact us at:
+                  Ander Larrañaga ([alarranaga@nemsolutions.com][email])
+                  ###### Remember, if you are using data as you were doing it long time ago, you are already long time behind. **Let data speak.**
+
+                  ###### Your sincerely,
+
+                  ###### NEM Solutions family
+
+                  ![][logo]
+
+                  ###### *This is an estimate, based on other customers and our database of more than 10 years and 12.000 Wind Turbines we are analyzing.
+
+
+                   [email]: <mailto::alarranaga@nemsolutions.com>
+                   [logo]: https://windeurope.org/wp-content/uploads/nem-solutions.gif "NEM"
+                   ' />
+                 </Quote>
+               </Layer>
             </Box>
           </Columns>
 

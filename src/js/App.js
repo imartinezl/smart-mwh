@@ -76,8 +76,12 @@ export default class Main extends Component {
       // <Image src='./img/pexels.jpeg' fit='cover'/>
       // </Box>
       // <Hero size='large' background={<Image src='../img/back2.jpg' fit={'cover'} full='vertical'/>}>
-      <div>
-      <App centered={false} style={{position: 'relative', backgroundImage: "url(" + "../img/gradient2.jpg" + ")"}}>
+
+      //<App centered={false} style={{position: 'relative', backgroundImage: "url(" + "../img/gradient2.jpg" + ")"}}>
+
+
+
+      <App centered={false} style={{position: 'relative', backgroundColor:'transparent'}}>
         <Box full={true}>
           <Box basis='1/4'/>
           <Header>
@@ -102,7 +106,7 @@ export default class Main extends Component {
           </Box>
         </Box>
       </App>
-      </div>
+      
 
 
 
