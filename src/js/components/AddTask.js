@@ -32,7 +32,6 @@ import Markdown from 'grommet/components/Markdown';
 import fire from '../fire';
 import firebase from 'firebase';
 
-var $ = require('jQuery');
 
 export default class AddTask extends Component {
   constructor(props) {
@@ -62,7 +61,6 @@ export default class AddTask extends Component {
     this.handleSelectChange = this.handleSelectChange.bind(this);
     this.closeToast = this.closeToast.bind(this);
     this._onChangeRange = this._onChangeRange.bind(this);
-    this.sendEmail = this.sendEmail.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
 
   }
@@ -113,12 +111,13 @@ export default class AddTask extends Component {
     this.setState({ [event.target.name]: event.target.value });
     // console.log('A name was submitted: ' + event.target.name + ' ' + event.target.value);
     console.log(this.state);
+    this.setState({savings: parseInt(0.0378985* parseInt(this.state.cost,10),10)})
   }
 
   handleSubmit(event) {
     event.preventDefault();
 
-    this.setState({savings: (parseInt(this.state.wts,10) * parseInt(this.state.cost,10))})
+    this.setState({savings: parseInt(0.0378985* parseInt(this.state.cost,10),10)})
     console.log(this.state);
     if (!this.state.formValid) {
       event.preventDefault();
@@ -152,30 +151,8 @@ export default class AddTask extends Component {
   }
 
   onSubmit(e){
-    e.preventDefault();
-    var submittedName = this.state.name;
-    var submittedEmail = this.state.email;
-    this.setState({
-      name: this.state.name,
-      email: this.state.email
-      }, function () {
-        this.sendEmail(this.state);
-    });
-  }
 
-  sendEmail(info) {
-      console.log("sending email");
-        $.ajax({
-        url: '/',
-        type: 'POST',
-        data: info,
-        success: function(data) {
-          console.dir('success ' + data.message);
-        },
-        error: function(xhr, status, err) {
-          console.dir("error: " + err.message);
-        }
-      });
+
   }
 
   render() {
@@ -192,15 +169,15 @@ export default class AddTask extends Component {
               colorIndex='light-2'
               wrap={true}>
               <FormField style={{width:w}} label={<Label uppercase={true} size='small'> Installed Power (MW) </Label>} size='large'>
-                <NumberInput name='power' step={100}
+                <NumberInput name='power' step={100} min={0}
                 value={this.state.power} onChange={this.handleChange} />
               </FormField>
               <FormField style={{width: w}} label={<Label uppercase={true} size='small'> Number of Wind Turbines </Label>}  size='large'>
-                <NumberInput name='wts' step={50}
+                <NumberInput name='wts' step={50} min={0}
                 value={this.state.wts} onChange={this.handleChange} />
               </FormField>
               <FormField style={{width: w}} label={<Label uppercase={true} size='small'> O&M Annual Cost (€) </Label>}  size='large'>
-                <NumberInput name='cost' step={500000}
+                <NumberInput name='cost' step={500000} min={0}
                 value={this.state.cost} onChange={this.handleChange} />
               </FormField>
               <FormField style={{width: w}} label={<Label uppercase={true} size='small'> Onshore/Offshore % </Label>}  size='large'>
@@ -244,14 +221,14 @@ export default class AddTask extends Component {
                 primary={true}
                 secondary={true}
                 onClick={this.handleSubmit} style={{width:'330', margin:'10px 0px 0px 0px'}}/>
+                {
+                // <Button label='Send Email!'
+                //   type='submit'
+                //   primary={true}
+                //   secondary={true}
+                //   onClick={this.onSubmit} style={{width:'330', margin:'10px 0px 0px 0px'}}/>
 
-                <Button label='Send Email!'
-                  type='submit'
-                  primary={true}
-                  secondary={true}
-                  onClick={this.onSubmit} style={{width:'330', margin:'10px 0px 0px 0px'}}/>
 
-              {
                 // <Animate visible={this.state.toast}
               //   enter={{"animation": "fade", "duration": 1000, "delay": 0}}
               //   keep={false}>
@@ -274,7 +251,7 @@ export default class AddTask extends Component {
 
                   ###### We have been analyzing your data and based on our **historical data, our neural networks, our fuzzy logic, our knowledge and common sense**, we are confident that could you be saving up a total:
                   '/>
-                  <Headline size='small' margin='large' align='center' strong={true}>  {this.state.savings} €</Headline>
+                  <Headline size='small' margin='large' align='center' strong={true}>  {this.state.savings} € *</Headline>
 
                   <Markdown  components={{
                    "h1": {"props": {"strong": true}},
