@@ -2,7 +2,7 @@
 
 This web-form gathers information from wind-turbine owners, such as installed power, number of wind turbines, OEM, onshore/offshore ratio and contact information. After completing the form, a Firebase function contacts the user with an html email.
 
-![ ](https://github.com/imartinezl/SmartMWH/blob/master/Smart%20MWH.jpg)
+![ ](https://github.com/imartinezl/SmartMWH/blob/master/SmartMWH_perspective_rev.png)
 
 # Frameworks + Libraries
 This webpage was built using several frameworks and libraries :
