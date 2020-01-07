@@ -4,7 +4,7 @@ This web-form gathers information from wind-turbine owners, such as installed po
 
 ![ ](https://github.com/imartinezl/SmartMWH/blob/master/SmartMWH_perspective_rev.png)
 
-# Frameworks + Libraries
+## Frameworks + Libraries
 This webpage was built using several frameworks and libraries :
 - [React](https://reactjs.org/) 15.4.0, a JavaScript library for building user interfaces by Facebook.
 - [Webpack](https://webpack.js.org/) 3.4.1, a module bundler responsible for determining load priority, dependencies, efficiency, paths.
